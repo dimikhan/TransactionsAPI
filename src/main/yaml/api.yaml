@@ -1,0 +1,231 @@
+swagger: '2.0'
+info:
+  version: '${api.version}'
+  title: '${project.artifactId}'
+  x-ibm-name: '${artifactId}'
+  description: '${project.artifactId}'
+  contact:
+    name: Edwin
+host: $(catalog.host)
+basePath: '/${project.artifactId}/${api.version}'
+paths:
+  '/posts/{id}/comments':
+    get:
+      responses:
+        '200':
+          description: 200 OK
+    parameters:
+      - name: id
+        type: string
+        required: true
+        in: path
+        description: post id
+  '/posts/{id}':
+    get:
+      responses:
+        '200':
+          description: 200 OK
+    parameters:
+      - name: id
+        type: string
+        required: true
+        in: path
+        description: post id
+  /posts:
+    get:
+      responses:
+        '200':
+          description: 200 OK
+securityDefinitions:
+  clientID:
+    description: ''
+    in: header
+    name: X-IBM-Client-Id
+    type: apiKey
+security:
+  - clientID: []
+x-ibm-configuration:
+  assembly:
+    execute:
+      - operation-switch:
+          title: operation-switch
+          case:
+            - operations:
+                - verb: get
+                  path: '/posts/{id}/comments'
+              execute:
+                - gatewayscript:
+                    title: getPostComments
+                    source: "apim.setvariable('operation','getPostComments');"
+            - operations:
+                - verb: get
+                  path: '/posts/{id}'
+              execute:
+                - gatewayscript:
+                    title: getPostById
+                    source: "apim.setvariable('operation','getPostById');"
+            - operations:
+                - verb: get
+                  path: /posts
+              execute:
+                - gatewayscript:
+                    title: getPosts
+                    source: "apim.setvariable('operation','getPosts');"
+      - gatewayscript:
+          title: Log Request
+          source: >-
+            var util = require('${api.framework.dir}/Util.js');
+
+            var apiConfig
+            = util.loadApiConfig('${api.framework.dir}/','${api.config.dir}/',apim.getvariable('env.path'),'${project.artifactId}}','${api.version}',
+            console);
+
+
+
+
+
+            // log request headers and Audit Data
+
+            apiConfig.logAuditData(apim);
+      - gatewayscript:
+          title: Setup
+          source: >-
+            // Load API Config
+
+            var util = require('${api.framework.dir}/Util.js');
+
+            var apiConfig
+            = util.loadApiConfig('${api.framework.dir}/','${api.config.dir}/',apim.getvariable('env.path'),'${project.artifactId}}','${api.version}',
+            console);
+
+
+
+            // get the operation and method being executed
+
+            var operation = apim.getvariable('operation');
+
+            var method  = apim.getvariable('request.verb');
+
+
+
+            // set the targetUrl
+
+            apim.setvariable('targetUrl',apiConfig.getOperation(operation).getMethod(method).targetUrl);
+
+
+
+            var preTransformMethod = operation + 'PreTransform';
+
+            apim.setvariable('preTransformMethod', preTransformMethod);
+
+
+
+            var postTransformMethod = operation + 'PostTransform';
+
+            apim.setvariable('postTransformMethod', postTransformMethod);
+      - gatewayscript:
+          title: PreTransform
+          source: >-
+            // Load API Config
+
+            var util = require('${api.framework.dir}/Util.js');
+
+            var apiConfig
+            = util.loadApiConfig('${api.framework.dir}/','${api.config.dir}/',apim.getvariable('env.path'),'${project.artifactId}}','${api.version}',
+            console);
+
+
+
+            var body = apim.getvariable('message.body');
+
+            apiConfig.logMessageBody(apim, 'Input');
+
+
+
+            var transformer = require('${api.config.dir}/Transformations.js');
+
+            var transformMethodName = apim.getvariable('preTransformMethod');
+
+            util.transformAndLog(transformer, transformMethodName,
+            '${api.framework.dir}/', apiConfig, apim);
+      - operation-switch:
+          title: Invoke URL switch
+          case:
+            - operations:
+                - verb: get
+                  path: '/posts/{id}'
+              execute:
+                - invoke:
+                    title: invoke
+                    timeout: 60
+                    verb: GET
+                    cache-response: no-cache
+                    cache-ttl: 900
+                    target-url: $(targetUrl)
+            - operations:
+                - verb: get
+                  path: /posts
+                - verb: get
+                  path: '/posts/{id}/comments'
+              execute:
+                - invoke:
+                    title: invoke
+                    timeout: 60
+                    verb: GET
+                    cache-response: time-to-live
+                    cache-ttl: 900
+                    target-url: $(targetUrl)
+          description: Specify target Method and caching options here
+      - gatewayscript:
+          title: PostTransform
+          source: >-
+            // Load API Config
+
+            var util = require('${api.framework.dir}/Util.js');
+
+            var apiConfig
+            = util.loadApiConfig('${api.framework.dir}/','${api.config.dir}/',apim.getvariable('env.path'),'${project.artifactId}}','${api.version}',
+            console);
+
+
+
+            var body = apim.getvariable('message.body');
+
+            apiConfig.logMessageBody(apim, 'InvokeResponse');
+
+
+
+            var transformer = require('${api.config.dir}/Transformations.js');
+
+            var transformMethodName = apim.getvariable('postTransformMethod');
+
+            util.transformAndLog(transformer, transformMethodName,
+            '${api.framework.dir}/', apiConfig, apim);
+          description: Transform Response
+      - gatewayscript:
+          title: Log Response
+          source: >-
+            var util = require('${api.framework.dir}/Util.js');
+
+            var apiConfig
+            = util.loadApiConfig('${api.framework.dir}/','${api.config.dir}/',apim.getvariable('env.path'),'${project.artifactId}}','${api.version}',
+            console);
+
+
+
+
+
+            // log response headers and Audit Data
+
+            apiConfig.logAuditData(apim);
+  catalogs:
+    catalog-name-1:
+      properties:
+        new-property-1: ''
+  gateway: datapower-gateway
+consumes:
+  - application/json
+schemes:
+  - https
+produces:
+  - application/json

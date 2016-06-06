@@ -1,0 +1,10 @@
+<dcm:definition xmlns:dcm="urn:datapower:configuration:manager">
+	
+	<dcm:upload environment="b2b" localdir="${deploy.dir}" match="b2bConfig.js" remotedir="${api.config.dir}"/>
+	
+	<dcm:upload environment="public" localdir="${deploy.dir}" match="publicConfig.js" remotedir="${api.config.dir}"/>
+	
+	<dcm:upload environment="private" localdir="${deploy.dir}" match="privateConfig.js" remotedir="${api.config.dir}"/>	
+		
+	<dcm:upload localdir="${deploy.dir}" match="Transformations.js" remotedir="${api.config.dir}"/>
+</dcm:definition>

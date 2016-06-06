@@ -1,0 +1,35 @@
+product: 1.0.0
+info:
+  name: ${artifactId}Product
+  title: ${artifactId}Product
+  version: 1.0.0
+apis:
+  FrameworkAPI:
+    $ref: api.yaml
+plans:
+  Platinum:
+    title: Platinum
+    apis: {}
+    rate-limit:
+      value: unlimited
+    approval: true
+  Gold:
+    title: Gold
+    apis: {}
+    rate-limit:
+      value: 180/1minute
+      hard-limit: true
+    approval: true
+  Silver:
+    title: Silver
+    apis: {}
+    rate-limit:
+      value: 120/1minute
+      hard-limit: true
+    approval: true
+  Bronze:
+    title: Bronze
+    apis: {}
+    rate-limit:
+      value: 60/1minute
+      hard-limit: true
