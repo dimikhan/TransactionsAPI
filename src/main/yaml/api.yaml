@@ -5,33 +5,12 @@ info:
   x-ibm-name: '${artifactId}'
   description: '${project.artifactId}'
   contact:
-    name: Edwin
+    name: Sanket
+    email: sanketsw@au1.ibm.com
 host: $(catalog.host)
 basePath: '/${project.artifactId}/${api.version}'
 paths:
-  '/posts/{id}/comments':
-    get:
-      responses:
-        '200':
-          description: 200 OK
-    parameters:
-      - name: id
-        type: string
-        required: true
-        in: path
-        description: post id
-  '/posts/{id}':
-    get:
-      responses:
-        '200':
-          description: 200 OK
-    parameters:
-      - name: id
-        type: string
-        required: true
-        in: path
-        description: post id
-  /posts:
+  /transactions:
     get:
       responses:
         '200':
@@ -52,25 +31,11 @@ x-ibm-configuration:
           case:
             - operations:
                 - verb: get
-                  path: '/posts/{id}/comments'
+                  path: /transactions
               execute:
                 - gatewayscript:
-                    title: getPostComments
-                    source: "apim.setvariable('operation','getPostComments');"
-            - operations:
-                - verb: get
-                  path: '/posts/{id}'
-              execute:
-                - gatewayscript:
-                    title: getPostById
-                    source: "apim.setvariable('operation','getPostById');"
-            - operations:
-                - verb: get
-                  path: /posts
-              execute:
-                - gatewayscript:
-                    title: getPosts
-                    source: "apim.setvariable('operation','getPosts');"
+                    title: transactions
+                    source: "apim.setvariable('operation','transactions');"
       - gatewayscript:
           title: Log Request
           source: >-
@@ -79,6 +44,10 @@ x-ibm-configuration:
             var apiConfig
             = util.loadApiConfig('${api.framework.dir}/','${api.config.dir}/',apim.getvariable('env.path'),'${project.artifactId}}','${api.version}',
             console);
+
+
+
+
 
 
 
@@ -100,11 +69,15 @@ x-ibm-configuration:
 
 
 
+
+
             // get the operation and method being executed
 
             var operation = apim.getvariable('operation');
 
             var method  = apim.getvariable('request.verb');
+
+
 
 
 
@@ -114,9 +87,13 @@ x-ibm-configuration:
 
 
 
+
+
             var preTransformMethod = operation + 'PreTransform';
 
             apim.setvariable('preTransformMethod', preTransformMethod);
+
+
 
 
 
@@ -136,9 +113,13 @@ x-ibm-configuration:
 
 
 
+
+
             var body = apim.getvariable('message.body');
 
             apiConfig.logMessageBody(apim, 'Input');
+
+
 
 
 
@@ -153,26 +134,13 @@ x-ibm-configuration:
           case:
             - operations:
                 - verb: get
-                  path: '/posts/{id}'
+                  path: /transactions
               execute:
                 - invoke:
                     title: invoke
                     timeout: 60
-                    verb: GET
-                    cache-response: no-cache
-                    cache-ttl: 900
-                    target-url: $(targetUrl)
-            - operations:
-                - verb: get
-                  path: /posts
-                - verb: get
-                  path: '/posts/{id}/comments'
-              execute:
-                - invoke:
-                    title: invoke
-                    timeout: 60
-                    verb: GET
-                    cache-response: time-to-live
+                    verb: POST
+                    cache-response: protocol
                     cache-ttl: 900
                     target-url: $(targetUrl)
           description: Specify target Method and caching options here
@@ -189,9 +157,13 @@ x-ibm-configuration:
 
 
 
+
+
             var body = apim.getvariable('message.body');
 
             apiConfig.logMessageBody(apim, 'InvokeResponse');
+
+
 
 
 
@@ -210,6 +182,10 @@ x-ibm-configuration:
             var apiConfig
             = util.loadApiConfig('${api.framework.dir}/','${api.config.dir}/',apim.getvariable('env.path'),'${project.artifactId}}','${api.version}',
             console);
+
+
+
+
 
 
 
