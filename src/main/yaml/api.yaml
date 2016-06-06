@@ -15,6 +15,12 @@ paths:
       responses:
         '200':
           description: 200 OK
+    parameters:
+      - name: accountNo
+        type: string
+        required: true
+        in: query
+        description: Account Number
 securityDefinitions:
   clientID:
     description: ''
@@ -47,12 +53,6 @@ x-ibm-configuration:
 
 
 
-
-
-
-
-
-
             // log request headers and Audit Data
 
             apiConfig.logAuditData(apim);
@@ -69,15 +69,11 @@ x-ibm-configuration:
 
 
 
-
-
             // get the operation and method being executed
 
             var operation = apim.getvariable('operation');
 
             var method  = apim.getvariable('request.verb');
-
-
 
 
 
@@ -87,13 +83,9 @@ x-ibm-configuration:
 
 
 
-
-
             var preTransformMethod = operation + 'PreTransform';
 
             apim.setvariable('preTransformMethod', preTransformMethod);
-
-
 
 
 
@@ -113,13 +105,9 @@ x-ibm-configuration:
 
 
 
-
-
             var body = apim.getvariable('message.body');
 
             apiConfig.logMessageBody(apim, 'Input');
-
-
 
 
 
@@ -129,6 +117,10 @@ x-ibm-configuration:
 
             util.transformAndLog(transformer, transformMethodName,
             '${api.framework.dir}/', apiConfig, apim);
+
+
+
+            apim.output('application/json');
       - operation-switch:
           title: Invoke URL switch
           case:
@@ -157,13 +149,9 @@ x-ibm-configuration:
 
 
 
-
-
             var body = apim.getvariable('message.body');
 
             apiConfig.logMessageBody(apim, 'InvokeResponse');
-
-
 
 
 
@@ -182,12 +170,6 @@ x-ibm-configuration:
             var apiConfig
             = util.loadApiConfig('${api.framework.dir}/','${api.config.dir}/',apim.getvariable('env.path'),'${project.artifactId}}','${api.version}',
             console);
-
-
-
-
-
-
 
 
 

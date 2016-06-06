@@ -21,13 +21,16 @@ exports.transactionsPreTransform = function(frameworkLocation,api,apim) {
 
 	api.logger.debug("transactionsPreTransform Entry");
 	var transformer = require(frameworkLocation + 'JsonTransformer.js').newJsonTransformer(frameworkLocation);
-	 
+	
+	var accountId = apim.getvariable('request.parameters.accountNo');
+	api.logger.debug("Account num= " + accountId);
+	
 	var value = {
 			  "acctTrnInqRq": {
 				    "additionalProperties": {},
 				    "anzacctId": {
-				      "acctId": "string",
-				      "acctNo": "string",
+				      "acctId": accountId,
+				      "acctNo": accountId,
 				      "acctType": "string",
 				      "additionalProperties": {}
 				    },
@@ -58,8 +61,36 @@ exports.transactionsPreTransform = function(frameworkLocation,api,apim) {
 	
 	//var data = apim.getvariable('message.body');
 	//var ret = transformer.transform(data, template);
-	api.logger.debug("transfomed body= " + JSON.stringify(value));
+	//api.logger.debug("transfomed body= " + JSON.stringify(value));
 	api.logger.debug("transactionsPreTransform Exit");
 		
 	return value;		
+}
+
+
+exports.transactionsPostTransform = function(frameworkLocation,api,apim) {
+
+	api.logger.debug("transactionsPostTransform Entry");
+	var transformer = require(frameworkLocation + 'JsonTransformer.js').newJsonTransformer(frameworkLocation);
+	 
+	var template = {
+			Transactions: ['$.acctTrnInqRs.bankAcctTrnRec', {
+	            referenceNumber: '$.refNum',
+	            transactionDate: '$.trnDt',
+	            processedDate: '$.postedDt',
+	            type: '$.trnType',
+	            amount: '$.amt',
+	            shortDescription: '$.desc1',
+	            detailedDescription: '$.desc2',
+	            runningBalance: '$.runningBal',
+	            cardUsed: '$.cardUsed'
+			  }]
+			};
+	
+	var data = apim.getvariable('message.body');
+	var ret = transformer.transform(data, template);
+	api.logger.debug("transfomed body= " + JSON.stringify(ret));
+	api.logger.debug("transactionsPostTransform Exit");
+		
+	return ret;		
 }
