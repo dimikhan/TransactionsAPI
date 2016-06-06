@@ -81,8 +81,7 @@ describe(
 				}
 			});
 
-			it(
-					"testTransactionsPostTransform",
+			it("testTransactionsPostTransform",
 					function() {
 
 						try {
@@ -193,5 +192,40 @@ describe(
 							console.debug(e);
 						}
 					});
+			
+			it("testTransactionsPreTransform",
+					function() {
+
+						try {
+							var transformations = require("Transformations.js");
+							var api = require("Api.js").newApi(
+									frameworkLocation, "api", "1.0.0", config,
+									require('Logger.js').newLogger(7, console));
+
+							// mock body to transform
+							var AccountId = '6584095';
+
+							apim.getvariable.and.callFake(function(variable) {
+								return AccountId;
+							});
+
+							var result = transformations
+									.transactionsPreTransform(
+											frameworkLocation, api, apim);
+							api.logger.info(result);
+							var expectedResults = '{"acctTrnInqRq":{"additionalProperties":{},"anzacctId":{"acctId":"6584095","acctNo":"6584095","acctType":"string","additionalProperties":{}},"anztraceInfo":{"additionalProperties":{},"branchId":"string","effDt":"string","initCompany":"string","operatorId":"string","origApp":"string","terminalId":"string"},"custId":{"additionalProperties":{},"custPermId":"string"},"incDetail":"string","recCtrlIn":"string","rqUID":"string","selRangeDt":{"additionalProperties":{},"endDt":"string","startDt":"string"}},"additionalProperties":{}}';
+							var actualResults = JSON.stringify(result);
+
+							expect(expectedResults).toBe(actualResults);
+
+							console.info(actualResults);
+
+
+						} catch (e) {
+							console.debug(e);
+						}
+					});
+
+	
 
 		});

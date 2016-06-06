@@ -59,9 +59,6 @@ exports.transactionsPreTransform = function(frameworkLocation,api,apim) {
 				  "additionalProperties": {}
 				};
 	
-	//var data = apim.getvariable('message.body');
-	//var ret = transformer.transform(data, template);
-	//api.logger.debug("transfomed body= " + JSON.stringify(value));
 	api.logger.debug("transactionsPreTransform Exit");
 		
 	return value;		
@@ -89,7 +86,6 @@ exports.transactionsPostTransform = function(frameworkLocation,api,apim) {
 	
 	var data = apim.getvariable('message.body');
 	var ret = transformer.transform(data, template);
-	api.logger.debug("transfomed body= " + JSON.stringify(ret));
 	api.logger.debug("transactionsPostTransform Exit");
 		
 	return ret;		
