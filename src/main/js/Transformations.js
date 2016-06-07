@@ -23,7 +23,6 @@ exports.transactionsPreTransform = function(frameworkLocation,api,apim) {
 	var transformer = require(frameworkLocation + 'JsonTransformer.js').newJsonTransformer(frameworkLocation);
 	
 	var accountId = apim.getvariable('request.parameters.accountNo');
-	api.logger.debug("Account num= " + accountId);
 	
 	var value = {
 			  "acctTrnInqRq": {
