@@ -67,6 +67,12 @@ exports.transactionsPreTransform = function(frameworkLocation,api,apim) {
 exports.transactionsPostTransform = function(frameworkLocation,api,apim) {
 
 	api.logger.debug("transactionsPostTransform Entry");
+	
+	var data = apim.getvariable('message.body');
+	if(data != null && data.errorCode != null) {
+		return api.generateBusinessError(frameworkLocation, apim, 'Oracle MSL', data.errorCode);
+	}
+	
 	var transformer = require(frameworkLocation + 'JsonTransformer.js').newJsonTransformer(frameworkLocation);
 	 
 	var template = {
@@ -83,7 +89,7 @@ exports.transactionsPostTransform = function(frameworkLocation,api,apim) {
 			  }]
 			};
 	
-	var data = apim.getvariable('message.body');
+	
 	var ret = transformer.transform(data, template);
 	api.logger.debug("transactionsPostTransform Exit");
 		
