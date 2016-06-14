@@ -2,19 +2,20 @@
  * API Version : ${api.version}
  */
 
-exports.transformRequestMessageBody = function(frameworkLocation,api,apim) {
 
-	var transformer = require(frameworkLocation + 'JsonTransformer.js').newJsonTransformer(frameworkLocation);
-	 
-	var template = {
-	  foo: ['$.some.crazy', {
-	    bar: '$.example'
-	  }]
-	};
+/**
+ * Masks the given string based on regular expressions
+ * @param str String to be masked
+ */
+exports.mask = function(str) {
+	var maskedStr = str;
 	
-	var data = apim.getvariable('message.body');
-		
-	return transformer.transform(data, template);		
+	// Mask credit card account number
+	maskedStr = maskedStr.replace(/\b(\d{12})(\d{4})\b/ig, 'xxxxxxxxxxxx$2');	
+	// Mask reference number
+	maskedStr = maskedStr.replace(/(?:"(refNum|referenceNumber)"\s*:\s*")\b(\d{4})\d+(\d{4})\b/ig, '"$1": "$2xxxxxxxx$3');
+	
+	return maskedStr;
 }
 
 exports.transactionsPreTransform = function(frameworkLocation,api,apim) {

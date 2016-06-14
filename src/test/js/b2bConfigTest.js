@@ -17,6 +17,9 @@ describe("b2bConfigTest",function() {
 		console.debug = function(msg) {
 			print(msg);
 		};
+		console.options = function(msg) {
+			return this;
+		};
 	});
 
 	it("testNoSandboxConfig", function() {

@@ -12,6 +12,11 @@ describe(
 			// spy object to replace console
 			var console;
 			var apim;
+
+			var logger = require('Logger.js').newLogger({ 
+					name: "gatewayscript-user",
+					logLevel: "7"
+				}, console);
 			var config = [ {
 				name : "/users",
 				methods : [ {
@@ -39,6 +44,7 @@ describe(
 				console.info.and.callFake(log);
 				console.notice.and.callFake(log);
 				console.debug.and.callFake(log);
+				console.error.and.callFake(log);
 			});
 
 			it("testTransformRequestMessageBody", function() {
@@ -47,7 +53,7 @@ describe(
 					var transformations = require("Transformations.js");
 					var api = require("Api.js").newApi(frameworkLocation,
 							"api", "1.0.0", config,
-							require('Logger.js').newLogger(7, console));
+							logger, logger);
 
 					// mock body to transform
 					var body = {
@@ -88,7 +94,7 @@ describe(
 							var transformations = require("Transformations.js");
 							var api = require("Api.js").newApi(
 									frameworkLocation, "api", "1.0.0", config,
-									require('Logger.js').newLogger(7, console));
+									logger, logger);
 
 							// mock body to transform
 							var body = {
@@ -200,7 +206,7 @@ describe(
 							var transformations = require("Transformations.js");
 							var api = require("Api.js").newApi(
 									frameworkLocation, "api", "1.0.0", config,
-									require('Logger.js').newLogger(7, console));
+									logger, logger);
 
 							// mock body to transform
 							var AccountId = '6584095';
