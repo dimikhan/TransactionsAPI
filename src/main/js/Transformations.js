@@ -23,45 +23,48 @@ exports.transactionsPreTransform = function(frameworkLocation,api,apim) {
 	api.logger.debug("transactionsPreTransform Entry");
 	var transformer = require(frameworkLocation + 'JsonTransformer.js').newJsonTransformer(frameworkLocation);
 	
-	var accountId = apim.getvariable('request.parameters.accountNo');
+	var output = {};
+	var AcctTrnInqRq = {};
+
+	var ANZTraceInfo = {};
+	ANZTraceInfo.EffDt = '2016-04-06';
+	ANZTraceInfo.InitCompany = '00010';
+	ANZTraceInfo.OperatorId = 'finacleu';
+	ANZTraceInfo.BranchId = '003026';
+	ANZTraceInfo.OrigApp = 'PCB';
+	AcctTrnInqRq.ANZTraceInfo = ANZTraceInfo;
+
+	AcctTrnInqRq.RqUID = 'e6253a70-e57f-085e-2153-c109037f7fdd';
+
+	var ANZAcctId = {};
+	ANZAcctId.AcctId = '5430480002988320';
+	ANZAcctId.AcctNo = '5430480002988320';
+	ANZAcctId.AcctType = 'PCP';
+	AcctTrnInqRq.ANZAcctId = ANZAcctId;
+
+	var CustId = {};
+	CustId.CustPermId = '314925343';
+	AcctTrnInqRq.CustId = CustId;
+
+	var SelRangeDt = {};
+	SelRangeDt.StartDt = '2016-02-20';
+	SelRangeDt.EndDt = '2016-02-22';
+	AcctTrnInqRq.SelRangeDt = SelRangeDt;
+
+	AcctTrnInqRq.IncDetail = '1';
+	AcctTrnInqRq.RecCtrlIn = '2000';
 	
-	var value = {
-			  "acctTrnInqRq": {
-				    "additionalProperties": {},
-				    "anzacctId": {
-				      "acctId": accountId,
-				      "acctNo": accountId,
-				      "acctType": "string",
-				      "additionalProperties": {}
-				    },
-				    "anztraceInfo": {
-				      "additionalProperties": {},
-				      "branchId": "string",
-				      "effDt": "string",
-				      "initCompany": "string",
-				      "operatorId": "string",
-				      "origApp": "string",
-				      "terminalId": "string"
-				    },
-				    "custId": {
-				      "additionalProperties": {},
-				      "custPermId": "string"
-				    },
-				    "incDetail": "string",
-				    "recCtrlIn": "string",
-				    "rqUID": "string",
-				    "selRangeDt": {
-				      "additionalProperties": {},
-				      "endDt": "string",
-				      "startDt": "string"
-				    }
-				  },
-				  "additionalProperties": {}
-				};
+	var accountId = apim.getvariable('request.parameters.accountNo');
+	if(accountId == '6000' || accountId == '5000') {
+		ANZAcctId.AcctId = accountId;
+		ANZAcctId.AcctNo = accountId;
+	}
+
+	output.AcctTrnInqRq = AcctTrnInqRq;
 	
 	api.logger.debug("transactionsPreTransform Exit");
 		
-	return value;		
+	return output;		
 }
 
 
@@ -75,23 +78,40 @@ exports.transactionsPostTransform = function(frameworkLocation,api,apim) {
 	}
 	
 	var transformer = require(frameworkLocation + 'JsonTransformer.js').newJsonTransformer(frameworkLocation);
-	 
-	var template = {
-			Transactions: ['$.acctTrnInqRs.bankAcctTrnRec', {
-	            referenceNumber: '$.refNum',
-	            transactionDate: '$.trnDt',
-	            processedDate: '$.postedDt',
-	            type: '$.trnType',
-	            amount: '$.amt',
-	            shortDescription: '$.desc1',
-	            detailedDescription: '$.desc2',
-	            runningBalance: '$.runningBal',
-	            cardUsed: '$.cardUsed'
-			  }]
-			};
+
+	if(data.AcctTrnInqRs.BankAcctTrnRec.RefNum != null) {
+		var template = {
+			referenceNumber:  '$.AcctTrnInqRs.BankAcctTrnRec.RefNum',
+            transactionDate: '$.AcctTrnInqRs.BankAcctTrnRec.TrnDt',
+            processedDate: '$.AcctTrnInqRs.BankAcctTrnRec.PostedDt',
+            type: '$.AcctTrnInqRs.BankAcctTrnRec.TrnType',
+            amount: '$.AcctTrnInqRs.BankAcctTrnRec.Amt',
+            shortDescription: '$.AcctTrnInqRs.BankAcctTrnRec.Desc1',
+            detailedDescription: '$.AcctTrnInqRs.BankAcctTrnRec.Desc2',
+            runningBalance: '$.AcctTrnInqRs.BankAcctTrnRec.RunningBal',
+            cardUsed: '$.AcctTrnInqRs.BankAcctTrnRec.CardUsed'
+		};
+		var ret = transformer.transform(data, template);
+		ret = {Transaction : ret};
+	} else {
+		var template = {
+				Transactions: ['$.AcctTrnInqRs.BankAcctTrnRec', {
+		            referenceNumber: '$.RefNum',
+		            transactionDate: '$.TrnDt',
+		            processedDate: '$.PostedDt',
+		            type: '$.TrnType',
+		            amount: '$.Amt',
+		            shortDescription: '$.Desc1',
+		            detailedDescription: '$.Desc2',
+		            runningBalance: '$.RunningBal',
+		            cardUsed: '$.CardUsed'
+				  }]
+				};
+		var ret = transformer.transform(data, template);
+	}
 	
 	
-	var ret = transformer.transform(data, template);
+	
 	api.logger.debug("transactionsPostTransform Exit");
 		
 	return ret;		

@@ -7,4 +7,5 @@
 	<dcm:upload environment="private" localdir="${deploy.dir}" match="privateConfig.js" remotedir="${api.config.dir}"/>	
 		
 	<dcm:upload localdir="${deploy.dir}" match="Transformations.js" remotedir="${api.config.dir}"/>
+	<dcm:upload localdir="${deploy.dir}" match="StatusCodes.js" remotedir="${api.config.dir}"/>
 </dcm:definition>
